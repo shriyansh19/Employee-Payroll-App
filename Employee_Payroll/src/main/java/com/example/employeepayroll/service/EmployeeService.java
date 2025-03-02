@@ -2,6 +2,7 @@ package com.example.employeepayroll.service;
 
 import com.example.employeepayroll.dto.EmployeeDTO;
 import com.example.employeepayroll.model.Employee;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,59 +10,62 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Service class for managing employee data.
+ */
 @Service
+@Slf4j // Enables logging using Lombok
 public class EmployeeService {
 
-    // In-memory storage for employees
+    // List to store employee objects (simulating a database)
     private List<Employee> employeeList = new ArrayList<>();
 
-    // AtomicLong to generate unique IDs for employees
+    // Atomic counter to generate unique employee IDs
     private final AtomicLong idGenerator = new AtomicLong();
 
     /**
-     * Create an employee and add it to the in-memory list.
-     *
+     * Creates a new employee and adds it to the list.
      * @param employeeDTO Data Transfer Object containing employee details.
-     * @return Created Employee object.
+     * @return The newly created Employee object.
      */
     public Employee createEmployee(EmployeeDTO employeeDTO) {
-        long id = idGenerator.incrementAndGet(); // Generate unique ID
+        long id = idGenerator.incrementAndGet(); // Generate a unique ID
         Employee employee = new Employee();
         employee.setId(id);
         employee.setName(employeeDTO.getName());
         employee.setSalary(employeeDTO.getSalary());
 
-        employeeList.add(employee); // Add employee to the in-memory list
+        employeeList.add(employee); // Add employee to the list
+        log.info("Employee created with ID: {}", id); // Log creation
         return employee;
     }
 
     /**
-     * Retrieve all employees from the in-memory list.
-     *
-     * @return List of all employees.
+     * Retrieves all employees.
+     * @return List of all Employee objects.
      */
     public List<Employee> getAllEmployees() {
+        log.info("Fetching all employees");
         return employeeList;
     }
 
     /**
-     * Retrieve an employee by ID from the in-memory list.
-     *
-     * @param id Employee ID to search for.
-     * @return Optional containing the employee if found, otherwise empty.
+     * Retrieves an employee by their ID.
+     * @param id The unique ID of the employee.
+     * @return An Optional containing the Employee object if found.
      */
     public Optional<Employee> getEmployeeById(Long id) {
+        log.info("Fetching employee with ID: {}", id);
         return employeeList.stream()
                 .filter(employee -> employee.getId().equals(id))
                 .findFirst();
     }
 
     /**
-     * Update an employee's details in the in-memory list.
-     *
-     * @param id          Employee ID to update.
-     * @param employeeDTO Updated employee details.
-     * @return Updated Employee object if found, otherwise null.
+     * Updates an existing employee's details.
+     * @param id The unique ID of the employee.
+     * @param employeeDTO The new details to update.
+     * @return The updated Employee object, or null if not found.
      */
     public Employee updateEmployee(Long id, EmployeeDTO employeeDTO) {
         Optional<Employee> existingEmployee = getEmployeeById(id);
@@ -69,17 +73,23 @@ public class EmployeeService {
             Employee employee = existingEmployee.get();
             employee.setName(employeeDTO.getName());
             employee.setSalary(employeeDTO.getSalary());
+            log.info("Employee updated with ID: {}", id); // Log update
             return employee;
         }
-        return null; // Return null if employee not found
+        log.warn("Employee not found with ID: {}", id); // Log warning
+        return null;
     }
 
     /**
-     * Delete an employee from the in-memory list.
-     *
-     * @param id Employee ID to delete.
+     * Deletes an employee by their ID.
+     * @param id The unique ID of the employee.
      */
     public void deleteEmployee(Long id) {
-        employeeList.removeIf(employee -> employee.getId().equals(id));
+        boolean removed = employeeList.removeIf(employee -> employee.getId().equals(id));
+        if (removed) {
+            log.info("Employee deleted with ID: {}", id); // Log deletion
+        } else {
+            log.warn("Employee not found with ID: {}", id); // Log warning
+        }
     }
 }
