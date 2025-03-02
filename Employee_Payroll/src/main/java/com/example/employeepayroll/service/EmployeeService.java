@@ -1,48 +1,76 @@
 package com.example.employeepayroll.service;
 
+import com.example.employeepayroll.dto.EmployeeDTO;
 import com.example.employeepayroll.model.Employee;
-import com.example.employeepayroll.repository.EmployeeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class EmployeeService {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    // In-memory storage for employees
+    private List<Employee> employeeList = new ArrayList<>();
 
-    // Create Employee
-    public Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+    /**
+     * Create an employee and add to the in-memory list.
+     *
+     * @param employeeDTO Data Transfer Object containing employee details.
+     * @return Created Employee object.
+     */
+    public Employee createEmployee(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee(employeeDTO.getName(), employeeDTO.getSalary());
+        employeeList.add(employee);
+        return employee;
     }
 
-    // Get All Employees
+    /**
+     * Retrieve all employees from the in-memory list.
+     *
+     * @return List of all employees.
+     */
     public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+        return employeeList;
     }
 
-    // Get Employee by ID
+    /**
+     * Retrieve an employee by ID from the in-memory list.
+     *
+     * @param id Employee ID to search for.
+     * @return Optional containing the employee if found, otherwise empty.
+     */
     public Optional<Employee> getEmployeeById(Long id) {
-        return employeeRepository.findById(id);
+        return employeeList.stream()
+                .filter(employee -> employee.getId().equals(id))
+                .findFirst();
     }
 
-    // Update Employee
-    public Employee updateEmployee(Long id, Employee updatedEmployee) {
-        Optional<Employee> existingEmployee = employeeRepository.findById(id);
+    /**
+     * Update an employee's details in the in-memory list.
+     *
+     * @param id          Employee ID to update.
+     * @param employeeDTO Updated employee details.
+     * @return Updated Employee object if found, otherwise null.
+     */
+    public Employee updateEmployee(Long id, EmployeeDTO employeeDTO) {
+        Optional<Employee> existingEmployee = getEmployeeById(id);
         if (existingEmployee.isPresent()) {
             Employee employee = existingEmployee.get();
-            employee.setName(updatedEmployee.getName());
-            employee.setSalary(updatedEmployee.getSalary());
-            return employeeRepository.save(employee);
+            employee.setName(employeeDTO.getName());
+            employee.setSalary(employeeDTO.getSalary());
+            return employee;
         }
         return null;
     }
 
-    // Delete Employee
+    /**
+     * Delete an employee from the in-memory list.
+     *
+     * @param id Employee ID to delete.
+     */
     public void deleteEmployee(Long id) {
-        employeeRepository.deleteById(id);
+        employeeList.removeIf(employee -> employee.getId().equals(id));
     }
 }
