@@ -2,7 +2,13 @@ package com.example.employeepayroll.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data // Generates getters, setters, toString, equals, and hashCode
+@NoArgsConstructor // Generates a no-argument constructor
+@AllArgsConstructor // Generates a constructor with all arguments
 public class EmployeeDTO {
 
     @NotBlank(message = "Name cannot be empty")
@@ -10,29 +16,4 @@ public class EmployeeDTO {
 
     @NotNull(message = "Salary cannot be null")
     private Double salary;
-
-    // Constructors
-    public EmployeeDTO() {}
-
-    public EmployeeDTO(String name, Double salary) {
-        this.name = name;
-        this.salary = salary;
-    }
-
-    // Getters and Setters
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getSalary() {
-        return salary;
-    }
-
-    public void setSalary(Double salary) {
-        this.salary = salary;
-    }
 }
