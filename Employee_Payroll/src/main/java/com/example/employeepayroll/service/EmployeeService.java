@@ -1,8 +1,10 @@
 package com.example.employeepayroll.service;
 
 import com.example.employeepayroll.dto.EmployeeDTO;
+import com.example.employeepayroll.exception.EmployeePayrollException;
 import com.example.employeepayroll.model.Employee;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,10 +57,13 @@ public class EmployeeService {
      * @return An Optional containing the Employee object if found.
      */
     public Optional<Employee> getEmployeeById(Long id) {
-        log.info("Fetching employee with ID: {}", id);
-        return employeeList.stream()
-                .filter(employee -> employee.getId().equals(id))
+        Optional<Employee> employee = employeeList.stream()
+                .filter(e -> e.getId().equals(id))
                 .findFirst();
+        if (employee.isEmpty()) {
+            throw new EmployeePayrollException("Employee with ID " + id + " not found", HttpStatus.NOT_FOUND);
+        }
+        return employee;
     }
 
     /**
@@ -73,11 +78,9 @@ public class EmployeeService {
             Employee employee = existingEmployee.get();
             employee.setName(employeeDTO.getName());
             employee.setSalary(employeeDTO.getSalary());
-            log.info("Employee updated with ID: {}", id); // Log update
             return employee;
         }
-        log.warn("Employee not found with ID: {}", id); // Log warning
-        return null;
+        throw new EmployeePayrollException("Employee with ID " + id + " not found", HttpStatus.NOT_FOUND);
     }
 
     /**
