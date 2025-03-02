@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class EmployeeService {
@@ -14,15 +15,23 @@ public class EmployeeService {
     // In-memory storage for employees
     private List<Employee> employeeList = new ArrayList<>();
 
+    // AtomicLong to generate unique IDs for employees
+    private final AtomicLong idGenerator = new AtomicLong();
+
     /**
-     * Create an employee and add to the in-memory list.
+     * Create an employee and add it to the in-memory list.
      *
      * @param employeeDTO Data Transfer Object containing employee details.
      * @return Created Employee object.
      */
     public Employee createEmployee(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee(employeeDTO.getName(), employeeDTO.getSalary());
-        employeeList.add(employee);
+        long id = idGenerator.incrementAndGet(); // Generate unique ID
+        Employee employee = new Employee();
+        employee.setId(id);
+        employee.setName(employeeDTO.getName());
+        employee.setSalary(employeeDTO.getSalary());
+
+        employeeList.add(employee); // Add employee to the in-memory list
         return employee;
     }
 
@@ -62,7 +71,7 @@ public class EmployeeService {
             employee.setSalary(employeeDTO.getSalary());
             return employee;
         }
-        return null;
+        return null; // Return null if employee not found
     }
 
     /**
